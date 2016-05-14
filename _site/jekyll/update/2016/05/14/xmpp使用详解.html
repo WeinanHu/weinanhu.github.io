@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>XMPP使用详解</title>
+  <meta name="description" content="XMPP是一个开放式的XML协议，设计用于准实时消息和出席信息以及请求－响应服务服务器-充当xmpp通信的一个智能抽象层，负责对受验证的客户端，服务器以及其他实体之间以xml流的形式的连接和会话进行管理。-在这些实体间使用xml流对合理编址的xml节进行路由-存储和处理客户端使用的数据### 客户端通过TCP连接...">
+
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://weinanhu.github.io/jekyll/update/2016/05/14/XMPP%E4%BD%BF%E7%94%A8%E8%AF%A6%E8%A7%A3.html">
+  <link rel="alternate" type="application/rss+xml" title="WeinanHu个人网站" href="http://weinanhu.github.io/feed.xml">
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <a class="site-title" href="/">WeinanHu个人网站</a>
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        
+          
+          <a class="page-link" href="/about/">About</a>
+          
+        
+          
+        
+          
+        
+          
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">XMPP使用详解</h1>
+    <p class="post-meta"><time datetime="2016-05-14T10:14:44+08:00" itemprop="datePublished">May 14, 2016</time></p>
+  </header>
+
+  <div class="post-content" itemprop="articleBody">
+    <h2 id="xmppxml">XMPP是一个开放式的XML协议，设计用于准实时消息和出席信息以及请求－响应服务</h2>
+
+<h3 id="section">服务器</h3>
+<p>-充当xmpp通信的一个智能抽象层，负责对受验证的客户端，服务器以及其他实体之间以xml流的形式的连接和会话进行管理。
+-在这些实体间使用xml流对合理编址的xml节进行路由
+-存储和处理客户端使用的数据
+### 客户端
+通过TCP连接直接连接到服务器，并通过xmpp获得由服务器以及联合服务器所提供的全部功能。多个不同的客户端可以同时登陆并且并发的连接到一个服务器，每个不同资源的客户端通过xmpp地址的资源标识符来区分。建议的客户端和服务器连接的端口时5222
+### 网关
+网关是一个特殊用途的服务器端的服务，主要功能是把xmpp翻译成外部消息系统，并把返回的消息翻译成xmpp.</p>
+
+<h3 id="section-1">网络</h3>
+<p>每个服务器都是由一个网络地址来标识的并且服务器之间的通信是客户－服务器协议的直接拓展。任意两个服务器之间的通信是可选的，如果被激活，那么这种通信应该通过XML流绑定到TCP连接上进行。建议的服务器和服务器连接的端口时5269</p>
+
+<h3 id="section-2">地址空间</h3>
+<p>####概述
+因为xmpp通讯实在网络上，所以每个xmpp实体都需要一个地址，称为JabberID(JID)。一个合法的JID包括一组排列好的元素，包括域名(domain identifier), 节点名(node identifier), 和资源名(resource identifier)。user@host/resource这种结构，最常用来标识一个即时消息用户，这个用户所连接的服务器，以及这个用户用于连接对资源。一个JID的每一个合法部分的长度不能超过1023字节，也就是整体长度（包括@和／）不能超过3071.</p>
+
+<h3 id="xml">XML流</h3>
+<p>XMPP本质上是一种XML流技术。
+客户端开始和XMPP服务器会话，会打开一个长时间的TCP连接，然后和服务器协商一个流。一旦你和你的服务器建立了一个XML流，你和你的服务器可以通过流交换三个特殊的XML片段：<message></message>，<presence></presence>，<iq></iq>.这些片段称为XML节。是XML中最有意义的基本单元，而且一旦你已建立一个XML流，你可以通过流发送无数个节。</p>
+
+<h3 id="section-3">消息</h3>
+<message />
+<p>节是使用基本的“push”方法从一个地方到另一个地方得到消息，消息是不可告知的，它是一种“fire-and-forget”的机制从一个地方到另一个地方快速获取信息。
+消息的type
+normal:单个的消息，对应的回应可能会或者可能不会很快到来。
+chat:在两个实体间店实时对话中交换
+groupchat:多用户聊天室中交换
+headline:发送警告和通告，并不期望有回应
+error：对先前发送消息发生错误，实体检测这个问题将返回一个类型error的消息。
+消息的to:预期收件人的JabberID
+消息的from:发送者的JabberID，from地址不由发送客户端提供，而是由发送者的服务器添加邮戳，以避免地址欺骗。
+消息也包含有载荷元素。核心XMPP规格定义了一些非常基本的有效载荷，例如&lt;body/&gt;和<subject></subject>，被用于人对人的聊天信息,消息（和其他类的节）可以包含在核心XMPP规格中没有定义的有效载荷
+&gt;xml</p>
+<message from="suke@skh.whu.edu.cn" to="beta@skh.whu.edu.cn" type="chat">
+<body>Who are you?</body>
+<subject>Query</subject>
+</message>
+
+<h3 id="section-4">部分内容摘自：</h3>
+<p>文／riverli（简书作者）
+原文链接：http://www.jianshu.com/p/a94749385755</p>
+
+
+  </div>
+
+</article>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">WeinanHu个人网站</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li>WeinanHu个人网站</li>
+          <li><a href="mailto:1406062223@qq.com">1406062223@qq.com</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-2">
+        <ul class="social-media-list">
+          
+          <li>
+            <a href="https://github.com/weinanhu"><span class="icon icon--github"><svg viewBox="0 0 16 16"><path fill="#828282" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761 c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32 c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472 c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037 C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65 c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261 c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082 c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129 c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/></svg>
+</span><span class="username">weinanhu</span></a>
+
+          </li>
+          
+
+          
+          <li>
+            <a href="https://twitter.com/weinanhu1991"><span class="icon icon--twitter"><svg viewBox="0 0 16 16"><path fill="#828282" d="M15.969,3.058c-0.586,0.26-1.217,0.436-1.878,0.515c0.675-0.405,1.194-1.045,1.438-1.809c-0.632,0.375-1.332,0.647-2.076,0.793c-0.596-0.636-1.446-1.033-2.387-1.033c-1.806,0-3.27,1.464-3.27,3.27 c0,0.256,0.029,0.506,0.085,0.745C5.163,5.404,2.753,4.102,1.14,2.124C0.859,2.607,0.698,3.168,0.698,3.767 c0,1.134,0.577,2.135,1.455,2.722C1.616,6.472,1.112,6.325,0.671,6.08c0,0.014,0,0.027,0,0.041c0,1.584,1.127,2.906,2.623,3.206 C3.02,9.402,2.731,9.442,2.433,9.442c-0.211,0-0.416-0.021-0.615-0.059c0.416,1.299,1.624,2.245,3.055,2.271 c-1.119,0.877-2.529,1.4-4.061,1.4c-0.264,0-0.524-0.015-0.78-0.046c1.447,0.928,3.166,1.469,5.013,1.469 c6.015,0,9.304-4.983,9.304-9.304c0-0.142-0.003-0.283-0.009-0.423C14.976,4.29,15.531,3.714,15.969,3.058z"/></svg>
+</span><span class="username">weinanhu1991</span></a>
+
+          </li>
+          
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-3">
+        <p>Stay hungry,stay foolish.
+</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

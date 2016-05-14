@@ -1,0 +1,56 @@
+---
+layout: post
+title:  "XMPP使用详解"
+date:   2016-05-14 10:14:44 +0800
+categories: jekyll update
+---
+
+## XMPP是一个开放式的XML协议，设计用于准实时消息和出席信息以及请求－响应服务
+ 
+### 服务器
+-充当xmpp通信的一个智能抽象层，负责对受验证的客户端，服务器以及其他实体之间以xml流的形式的连接和会话进行管理。
+-在这些实体间使用xml流对合理编址的xml节进行路由
+-存储和处理客户端使用的数据
+### 客户端
+通过TCP连接直接连接到服务器，并通过xmpp获得由服务器以及联合服务器所提供的全部功能。多个不同的客户端可以同时登陆并且并发的连接到一个服务器，每个不同资源的客户端通过xmpp地址的资源标识符来区分。建议的客户端和服务器连接的端口时5222
+### 网关
+网关是一个特殊用途的服务器端的服务，主要功能是把xmpp翻译成外部消息系统，并把返回的消息翻译成xmpp.
+
+### 网络
+每个服务器都是由一个网络地址来标识的并且服务器之间的通信是客户－服务器协议的直接拓展。任意两个服务器之间的通信是可选的，如果被激活，那么这种通信应该通过XML流绑定到TCP连接上进行。建议的服务器和服务器连接的端口时5269
+
+### 地址空间
+####概述
+因为xmpp通讯实在网络上，所以每个xmpp实体都需要一个地址，称为JabberID(JID)。一个合法的JID包括一组排列好的元素，包括域名(domain identifier), 节点名(node identifier), 和资源名(resource identifier)。user@host/resource这种结构，最常用来标识一个即时消息用户，这个用户所连接的服务器，以及这个用户用于连接对资源。一个JID的每一个合法部分的长度不能超过1023字节，也就是整体长度（包括@和／）不能超过3071.
+
+### XML流
+XMPP本质上是一种XML流技术。
+客户端开始和XMPP服务器会话，会打开一个长时间的TCP连接，然后和服务器协商一个流。一旦你和你的服务器建立了一个XML流，你和你的服务器可以通过流交换三个特殊的XML片段：<message/>，<presence/>，<iq/>.这些片段称为XML节。是XML中最有意义的基本单元，而且一旦你已建立一个XML流，你可以通过流发送无数个节。
+
+### 消息
+<message/>节是使用基本的“push”方法从一个地方到另一个地方得到消息，消息是不可告知的，它是一种“fire-and-forget”的机制从一个地方到另一个地方快速获取信息。
+消息的type
+normal:单个的消息，对应的回应可能会或者可能不会很快到来。
+chat:在两个实体间店实时对话中交换
+groupchat:多用户聊天室中交换
+headline:发送警告和通告，并不期望有回应
+error：对先前发送消息发生错误，实体检测这个问题将返回一个类型error的消息。
+消息的to:预期收件人的JabberID
+消息的from:发送者的JabberID，from地址不由发送客户端提供，而是由发送者的服务器添加邮戳，以避免地址欺骗。
+消息也包含有载荷元素。核心XMPP规格定义了一些非常基本的有效载荷，例如<body/>和<subject/>，被用于人对人的聊天信息,消息（和其他类的节）可以包含在核心XMPP规格中没有定义的有效载荷
+>xml
+<message from="suke@skh.whu.edu.cn" to="beta@skh.whu.edu.cn" type="chat">
+<body>Who are you?</body>
+<subject>Query</subject>
+</message>
+
+
+### 部分内容摘自：
+文／riverli（简书作者）
+原文链接：http://www.jianshu.com/p/a94749385755
+
+
+
+[jekyll-docs]: http://jekyllrb.com/docs/home
+[jekyll-gh]:   https://github.com/jekyll/jekyll
+[jekyll-talk]: https://talk.jekyllrb.com/

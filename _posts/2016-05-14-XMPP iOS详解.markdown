@@ -1,0 +1,139 @@
+---
+layout: post
+title:  "XMPP iOS详解"
+date:   2016-05-14 10:14:44 +0800
+categories: jekyll update
+---
+{% highlight objc %}
+/**定义xmpp流*/
+@property(nonatomic,strong) XMPPStream *xmppStream;
+/**定义电子名片模块和存储*/
+@property(nonatomic,strong) XMPPvCardTempModule *xmppvCard;
+@property(nonatomic,strong) XMPPvCardCoreDataStorage *xmppvCardStorage;
+@property(nonatomic,strong) XMPPvCardAvatarModule *xmppvAvatar;
+@property(nonatomic,weak) id<WHLoginDelegate> loginDelegate;
+@property(nonatomic,weak) id<WHRegisterDelegate> registerDelegate;
+/**增加好友（花名册）模块和对应存储*/
+@property(nonatomic,strong) XMPPRoster *xmppRoster;
+@property(nonatomic,strong) XMPPRosterCoreDataStorage *xmppRosterStorage;
+-(void)setUpXmppStream{
+    self.xmppStream = [XMPPStream new];
+    //设置代理
+    [self.xmppStream addDelegate:self delegateQueue:dispatch_get_main_queue()];
+    //设置电子名片模块
+    self.xmppvCardStorage = [XMPPvCardCoreDataStorage sharedInstance];
+    self.xmppvCard = [[XMPPvCardTempModule alloc]initWithvCardStorage:self.xmppvCardStorage];
+    //设置头像模块
+    self.xmppvAvatar = [[XMPPvCardAvatarModule alloc]initWithvCardTempModule:self.xmppvCard];
+    //设置花名册模块
+    self.xmppRosterStorage = [XMPPRosterCoreDataStorage sharedInstance];
+    self.xmppRoster = [[XMPPRoster alloc]initWithRosterStorage:self.xmppRosterStorage];
+    //增加代理
+    [self.xmppRoster addDelegate:self delegateQueue:dispatch_get_main_queue()];
+    
+    //激活电子名片模块，（激活后沙盒中才有数据库文件）
+    [self.xmppvCard activate:self.xmppStream];
+    //激活头像模块
+    [self.xmppvAvatar activate:self.xmppStream];
+    
+    //激活花名册模块
+    [self.xmppRoster activate:self.xmppStream];
+    
+}
+/**连接服务器*/
+-(void)connectToServer{
+    //先把之前的连接断开
+    [self.xmppStream disconnect];
+    
+    if (self.xmppStream == nil) {
+        [self setUpXmppStream];
+    }
+    self.xmppStream.hostName = WHXMPPHOSTNAME;
+    self.xmppStream.hostPort = WHXMPPPORT;
+    /**构建jid*/
+    NSString *userName = nil;
+    if (self.connectType ==LOGIN) {
+        
+        userName = [WHUserInfo sharedWHUserInfo].userName;
+    }else{
+        userName = [WHUserInfo sharedWHUserInfo].registerUserName;
+    }
+    NSString *jidStr = [NSString stringWithFormat:@"%@@%@",userName,WHXMPPDOMAIN];
+    self.xmppStream.myJID = [XMPPJID jidWithString:jidStr];
+    //连接服务器
+    NSError *error = nil;
+    [self.xmppStream connectWithTimeout:XMPPStreamTimeoutNone error:&error];
+    if (error) {
+        NSLog(@"%@",error.userInfo);
+    }
+    
+    
+}
+/**发送密码 进行授权*/
+-(void)sendPassword{
+    NSString *userPassword = nil;
+    NSError *error = nil;
+    if (self.connectType == LOGIN) {
+        userPassword = [WHUserInfo sharedWHUserInfo].userPassword;
+        //使用密码进行授权
+        [self.xmppStream authenticateWithPassword:userPassword error:&error];
+        
+    }else{
+        userPassword = [WHUserInfo sharedWHUserInfo].registerPassword;
+        //使用密码进行注册
+        [self.xmppStream registerWithPassword:userPassword error:&error];
+    }
+    if (error) {
+        NSLog(@"%@",error.userInfo);
+    }
+}
+/**发送在线消息*/
+-(void)sendOnLine{
+    //这个对象默认代表在线
+    XMPPPresence *presence = [XMPPPresence presence];
+    [self.xmppStream sendElement:presence];
+}
+#pragma mark - XMPPStreamDelegate
+//连接成功
+-(void)xmppStreamDidConnect:(XMPPStream *)sender{
+    NSLog(@"连接成功");
+    [self sendPassword];
+}
+//连接失败
+-(void)xmppStreamDidDisconnect:(XMPPStream *)sender withError:(NSError *)error{
+    if (error) {
+        if (self.connectType == LOGIN) {
+            [self.loginDelegate xmppConnectError];
+        }else{
+            [self.registerDelegate xmppConnectError];
+        }
+        NSLog(@"断开和服务器的连接:%@",error.userInfo);
+    }
+}
+//授权成功
+-(void)xmppStreamDidAuthenticate:(XMPPStream *)sender{
+    NSLog(@"授权成功");
+    [self sendOnLine];
+    [self.loginDelegate xmppDidLoginSuccess];
+}
+//授权失败
+-(void)xmppStream:(XMPPStream *)sender didNotAuthenticate:(DDXMLElement *)error{
+    NSLog(@"授权失败:%@",error);
+    [self.loginDelegate xmppDidLoginFailed];
+}
+//注册成功
+-(void)xmppStreamDidRegister:(XMPPStream *)sender{
+    NSLog(@"注册成功");
+    [self.registerDelegate xmppDidRegisterSuccess];
+}
+//注册失败
+-(void)xmppStream:(XMPPStream *)sender didNotRegister:(DDXMLElement *)error{
+    NSLog(@"注册失败");
+    [self.registerDelegate xmppDidRegisterFailed];
+}
+{% endhighlight %}
+
+
+[jekyll-docs]: http://jekyllrb.com/docs/home
+[jekyll-gh]:   https://github.com/jekyll/jekyll
+[jekyll-talk]: https://talk.jekyllrb.com/
