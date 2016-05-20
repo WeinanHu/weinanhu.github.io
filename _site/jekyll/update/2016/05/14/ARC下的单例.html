@@ -6,12 +6,11 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <title>WeinanHu</title>
-  <meta name="description" content="Stay hungry,stay foolish.
-">
+  <title>ARC下的单例</title>
+  <meta name="description" content="////  WHManager.h#import &lt;Foundation/Foundation.h&gt;@interface WHManager : NSObject&lt;NSCopying&gt;+(id)shareManager;@end////  WHManager.m#import "WHMan...">
 
   <link rel="stylesheet" href="/css/main.css">
-  <link rel="canonical" href="http://weinanhu.github.io/">
+  <link rel="canonical" href="http://weinanhu.github.io/jekyll/update/2016/05/14/ARC%E4%B8%8B%E7%9A%84%E5%8D%95%E4%BE%8B.html">
   <link rel="alternate" type="application/rss+xml" title="WeinanHu" href="http://weinanhu.github.io/feed.xml">
 </head>
 
@@ -55,57 +54,54 @@
 
     <div class="page-content">
       <div class="wrapper">
-        <div class="home">
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
 
-  <h1 class="page-heading">Posts</h1>
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">ARC下的单例</h1>
+    <p class="post-meta"><time datetime="2016-05-14T10:15:44+08:00" itemprop="datePublished">May 14, 2016</time></p>
+  </header>
 
-  <ul class="post-list">
+  <div class="post-content" itemprop="articleBody">
     
-      <li>
-        <span class="post-meta">May 14, 2016</span>
-
-        <h2>
-          <a class="post-link" href="/jekyll/update/2016/05/14/ARC%E4%B8%8B%E7%9A%84%E5%8D%95%E4%BE%8B.html">ARC下的单例</a>
-        </h2>
-      </li>
+<figure class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="c1">//
+//  WHManager.h
+</span><span class="cp">#import &lt;Foundation/Foundation.h&gt;
+</span><span class="k">@interface</span> <span class="nc">WHManager</span> <span class="p">:</span> <span class="nc">NSObject</span><span class="o">&lt;</span><span class="n">NSCopying</span><span class="o">&gt;</span>
+<span class="o">+</span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="n">shareManager</span><span class="p">;</span>
+<span class="k">@end</span>
+<span class="c1">//
+//  WHManager.m
+</span><span class="cp">#import "WHManager.h"
+</span><span class="k">static</span> <span class="n">WHManager</span> <span class="o">*</span><span class="n">manager</span><span class="p">;</span>
+<span class="k">@implementation</span> <span class="nc">WHManager</span>
+<span class="k">+</span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="n">shareManager</span><span class="p">{</span>
+    <span class="k">@synchronized</span><span class="p">(</span><span class="n">self</span><span class="p">){</span>
+        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">manager</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">manager</span> <span class="o">=</span> <span class="p">[[</span><span class="n">super</span> <span class="nf">alloc</span><span class="p">]</span><span class="nf">init</span><span class="p">];</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">manager</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="o">+</span><span class="p">(</span><span class="n">instancetype</span><span class="p">)</span><span class="n">allocWithZone</span><span class="o">:</span><span class="p">(</span><span class="k">struct</span> <span class="n">_NSZone</span> <span class="o">*</span><span class="p">)</span><span class="n">zone</span><span class="p">{</span>
+    <span class="k">@synchronized</span><span class="p">(</span><span class="n">self</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">manager</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">manager</span> <span class="o">=</span> <span class="p">[</span><span class="n">super</span> <span class="nf">allocWithZone</span><span class="p">:</span><span class="n">zone</span><span class="p">];</span>
+            <span class="k">return</span> <span class="n">manager</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">manager</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="o">-</span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="n">copyWithZone</span><span class="o">:</span><span class="p">(</span><span class="n">NSZone</span> <span class="o">*</span><span class="p">)</span><span class="n">zone</span><span class="p">{</span>
     
-      <li>
-        <span class="post-meta">May 14, 2016</span>
+    <span class="k">return</span> <span class="n">self</span><span class="p">;</span> <span class="c1">//确保copy对象也是唯一
+</span>    
+<span class="p">}</span>
+<span class="k">@end</span></code></pre></figure>
 
-        <h2>
-          <a class="post-link" href="/jekyll/update/2016/05/14/XMPP%E4%BD%BF%E7%94%A8%E8%AF%A6%E8%A7%A3.html">XMPP使用详解</a>
-        </h2>
-      </li>
-    
-      <li>
-        <span class="post-meta">May 14, 2016</span>
 
-        <h2>
-          <a class="post-link" href="/jekyll/update/2016/05/14/XMPP-iOS%E8%AF%A6%E8%A7%A3.html">XMPP iOS详解</a>
-        </h2>
-      </li>
-    
-      <li>
-        <span class="post-meta">May 14, 2016</span>
+  </div>
 
-        <h2>
-          <a class="post-link" href="/jekyll/update/2016/05/14/Markdown-Syntax.html">Markdown Syntax</a>
-        </h2>
-      </li>
-    
-      <li>
-        <span class="post-meta">May 13, 2016</span>
-
-        <h2>
-          <a class="post-link" href="/jekyll/update/2016/05/13/welcome-to-jekyll.html">Welcome to Jekyll!</a>
-        </h2>
-      </li>
-    
-  </ul>
-
-  <p class="rss-subscribe">subscribe <a href="/feed.xml">via RSS</a></p>
-
-</div>
+</article>
 
       </div>
     </div>

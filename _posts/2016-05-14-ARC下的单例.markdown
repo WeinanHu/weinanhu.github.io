@@ -1,0 +1,47 @@
+---
+layout: post
+title:  "ARC下的单例"
+date:   2016-05-14 10:15:44 +0800
+categories: jekyll update
+---
+{% highlight objc %}
+//
+//  WHManager.h
+#import <Foundation/Foundation.h>
+@interface WHManager : NSObject<NSCopying>
++(id)shareManager;
+@end
+//
+//  WHManager.m
+#import "WHManager.h"
+static WHManager *manager;
+@implementation WHManager
++(id)shareManager{
+    @synchronized(self){
+        if (!manager) {
+            manager = [[super alloc]init];
+        }
+    }
+    return manager;
+}
++(instancetype)allocWithZone:(struct _NSZone *)zone{
+    @synchronized(self) {
+        if (!manager) {
+            manager = [super allocWithZone:zone];
+            return manager;
+        }
+    }
+    return manager;
+}
+-(id)copyWithZone:(NSZone *)zone{
+    
+    return self; //确保copy对象也是唯一
+    
+}
+@end
+{% endhighlight %}
+
+
+[jekyll-docs]: http://jekyllrb.com/docs/home
+[jekyll-gh]:   https://github.com/jekyll/jekyll
+[jekyll-talk]: https://talk.jekyllrb.com/
